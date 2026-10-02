@@ -1,0 +1,35 @@
+const fs = require('node:fs');
+const vm = require('node:vm');
+const assert = require('node:assert/strict');
+class CustomEvent extends Event { constructor(name, options) { super(name); this.detail = options.detail; } }
+const window = new EventTarget();
+const document = new EventTarget();
+let requests = 0;
+window.webkit = {messageHandlers: {standByPad: {postMessage: message => {assert.equal(message, 'getState'); requests++;}}}};
+document.getElementById = () => null;
+const navigator = {onLine: true};
+vm.runInNewContext(fs.readFileSync('App/Resources/native-bridge.js', 'utf8'), {window, document, navigator, EventTarget, Event, CustomEvent});
+(async () => {
+  let resolved = false;
+  const promise = navigator.getBattery().then(b => {resolved = true; return b;});
+  const snapshot = (level, charging, online, type) => ({battery: {level, charging, state: charging === null ? 'unknown' : charging ? 'charging' : 'unplugged'}, network: {online, type}});
+  window.StandByPadNative._receive(snapshot(null, null, null, 'unknown'));
+  await Promise.resolve();
+  assert.equal(resolved, false);
+  window.StandByPadNative._receive(snapshot(0.65, false, true, 'wifi'));
+  const battery = await promise;
+  assert.equal(battery.level, 0.65);
+  assert.equal(navigator.connection.type, 'wifi');
+  let levels = 0, charges = 0, offline = 0, changes = 0;
+  battery.addEventListener('levelchange', () => levels++);
+  battery.onchargingchange = () => charges++;
+  window.addEventListener('offline', () => offline++);
+  navigator.connection.addEventListener('change', () => changes++);
+  window.StandByPadNative._receive(snapshot(0.64, true, false, 'none'));
+  assert.equal(levels, 1); assert.equal(charges, 1); assert.equal(offline, 1); assert.equal(changes, 1);
+  assert.equal(navigator.onLine, false);
+  assert.equal(await navigator.getBattery(), battery);
+  window.StandByPadNative.refresh();
+  assert.equal(requests, 2);
+  console.log('PASS: battery readiness, native events, callbacks, network transitions, refresh');
+})();

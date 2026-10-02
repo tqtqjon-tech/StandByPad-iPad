@@ -1,0 +1,47 @@
+name: StandByPad
+options:
+  deploymentTarget:
+    iOS: '15.0'
+settings:
+  base:
+    PRODUCT_BUNDLE_IDENTIFIER: tech.tqtqjon.standbypad
+    SWIFT_VERSION: '5.0'
+    TARGETED_DEVICE_FAMILY: '2'
+    SUPPORTS_MACCATALYST: NO
+    CODE_SIGNING_ALLOWED: NO
+    CODE_SIGNING_REQUIRED: NO
+targets:
+  StandByPad:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+        excludes: [Resources]
+    resources:
+      - path: App/Resources/native-bridge.js
+      - path: WebAssets
+        type: folder
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: StandByPad
+        UIRequiresFullScreen: true
+        UIStatusBarHidden: true
+        UIViewControllerBasedStatusBarAppearance: true
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UILaunchScreen: {}
+        NSPhotoLibraryUsageDescription: 选择照片作为 StandByPad 墙纸。
+    settings:
+      base:
+        PRODUCT_NAME: StandByPad
+        SDKROOT: iphoneos
+schemes:
+  StandByPad:
+    build:
+      targets:
+        StandByPad: all
+    run:
+      config: Debug
+    archive:
+      config: Release

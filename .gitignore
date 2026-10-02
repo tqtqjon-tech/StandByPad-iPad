@@ -1,0 +1,7 @@
+/build/
+/package/
+/StandByPad.xcodeproj/
+/WebAssets/
+/App/Info.plist
+/xcodebuild.log
+.DS_Store
