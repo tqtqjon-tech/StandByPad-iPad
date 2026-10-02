@@ -17,10 +17,11 @@ targets:
     sources:
       - path: App
         excludes: [Resources]
-    resources:
       - path: App/Resources/native-bridge.js
+        buildPhase: resources
       - path: WebAssets
         type: folder
+        buildPhase: resources
     info:
       path: App/Info.plist
       properties:
